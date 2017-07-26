@@ -1714,6 +1714,7 @@ package data {
       case x: Long => java.lang.Long.valueOf(x)
       case x: Float => java.lang.Float.valueOf(x)
       case x: Double => java.lang.Double.valueOf(x)
+      case x if (x == null) => null.asInstanceOf[AnyRef]
       case x: AnyRef => x
     }
 
@@ -1871,9 +1872,9 @@ package data {
             case y: TranslateString =>    {case datum: String            => y.toScala(datum)}: PartialFunction[AnyRef, Any]
             case y: TranslateArray[_] =>  {case datum: PFAArray[_]       => y.toScala(datum)}: PartialFunction[AnyRef, Any]
             case y: TranslateMap[_] =>    {case datum: PFAMap[_]         => y.toScala(datum)}: PartialFunction[AnyRef, Any]
-            case y: TranslateFixed =>     {case datum: AnyPFAFixed if (datum.getSchema.getFullName == y.fullName)      => y.toScala(datum)}: PartialFunction[AnyRef, Any]
-            case y: TranslateEnum =>      {case datum: AnyPFAEnumSymbol if (datum.getSchema.getFullName == y.fullName) => y.toScala(datum)}: PartialFunction[AnyRef, Any]
-            case y: TranslateRecord[_] => {case datum: AnyPFARecord if (datum.getSchema.getFullName == y.fullName)     => y.toScala(datum)}: PartialFunction[AnyRef, Any]
+            case y: TranslateFixed =>     {case datum: AnyPFAFixed if (datum.getSchema.getFullName == y.fullName)              => y.toScala(datum)}: PartialFunction[AnyRef, Any]
+            case y: TranslateEnum =>      {case datum: AnyPFAEnumSymbol if (datum.getSchema.getFullName == y.fullName)         => y.toScala(datum)}: PartialFunction[AnyRef, Any]
+            case y: TranslateRecord[_] => {case datum: AnyPFARecord if (datum.getSchema.getName == y.fullName.split('.').last) => y.toScala(datum)}: PartialFunction[AnyRef, Any]
           }
 
           val translateFromScala = translators map {
